@@ -39,17 +39,22 @@
 */
 
 #include <OctoWS2811.h>
+#include <Wire.h>
 
 const int ledsPerStrip = 120;
 
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
-int data = 0;
+int data = 76;
 const int config = WS2811_GRB | WS2811_800kHz;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
 void setup() {
+  Wire.begin(84);
+  Wire.onReceive(receiveEvent);
+  pinMode(13,OUTPUT);
+  digitalWrite(13,LOW);
   leds.begin();
   leds.show();
 }
@@ -61,27 +66,21 @@ void setup() {
 #define PINK   0xFF1088
 #define ORANGE 0xE05800
 #define WHITE  0xFFFFFF
-#define GOLD   0xFFD700
-#define PURPLE 0x4E007A
+#define GOLD   0xF8B60F
+#define PURPLE 0x7A055D
 
-void loop() {
-  int microsec = 2000000 / leds.numPixels();  // change them all in 2 seconds
-  
-  if (data == 0){
-    colorWipe(PURPLE, microsec);
-    colorWipe(GOLD, microsec);
-  }
-  if (data == 1){
-    colorWipe(BLUE, microsec);
-  }
-  if (data == 2){
-    colorWipe(RED, microsec);
-  }
-  
+bool connected = true;
+int currentLightValue = 0;
+void loop() 
+{
 
-
-  // uncomment for voltage controlled speed
-  // millisec = analogRead(A9) / 40;
+  if (Wire.available())
+  {
+    currentLightValue = Wire.read();
+  } else {
+    //previousLightValue = currentLightValue;
+  }
+  receiveEvent(currentLightValue);
 }
 
 void colorWipe(int color, int wait)
@@ -91,4 +90,35 @@ void colorWipe(int color, int wait)
     leds.show();
     delayMicroseconds(wait);
   }
+}
+
+void receiveEvent(int data)
+{
+  int microsec = 2000000 / leds.numPixels();
+  
+    if(data == 72) 
+      {
+        digitalWrite(13,HIGH);
+        colorWipe(BLUE, microsec);
+      }
+    else if(data == 74)
+    {
+      digitalWrite(13,HIGH);
+      colorWipe(YELLOW, microsec);
+    }
+    else if(data == 76)
+    {
+      digitalWrite(13,HIGH);
+      colorWipe(PURPLE, microsec);
+      colorWipe(GOLD, microsec);
+    }
+    else if(data == 78)
+    {
+      digitalWrite(13,HIGH);
+      colorWipe(RED, microsec);
+    }
+    else
+    {
+      digitalWrite(13,LOW);
+    }
 }
