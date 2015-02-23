@@ -77,8 +77,9 @@ void loop()
   if (Wire.available())
   {
     currentLightValue = Wire.read();
-  } else {
-    //previousLightValue = currentLightValue;
+  }
+  else 
+  {
   }
   receiveEvent(currentLightValue);
 }
