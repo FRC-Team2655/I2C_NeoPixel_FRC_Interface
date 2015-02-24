@@ -46,6 +46,7 @@ const int ledsPerStrip = 120;
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
 int data = 76;
+
 const int config = WS2811_GRB | WS2811_800kHz;
 
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
@@ -53,8 +54,6 @@ OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 void setup() {
   Wire.begin(84);
   Wire.onReceive(receiveEvent);
-  pinMode(13,OUTPUT);
-  digitalWrite(13,LOW);
   leds.begin();
   leds.show();
 }
@@ -62,24 +61,15 @@ void setup() {
 #define RED    0xFF0000
 #define GREEN  0x00FF00
 #define BLUE   0x0000FF
-#define YELLOW 0xFFFF00
-#define PINK   0xFF1088
-#define ORANGE 0xE05800
-#define WHITE  0xFFFFFF
-#define GOLD   0xF8B60F
-#define PURPLE 0x7A055D
 
-bool connected = true;
+//bool connected = true;
 int currentLightValue = 0;
+int microsec = 2 / leds.numPixels();
+int lastLevel = 0;
 void loop() 
 {
-
-  if (Wire.available())
-  {
+  if (Wire.available()){
     currentLightValue = Wire.read();
-  }
-  else 
-  {
   }
   receiveEvent(currentLightValue);
 }
@@ -93,33 +83,45 @@ void colorWipe(int color, int wait)
   }
 }
 
+void drawSection(int startPoint, int endPoint, int color){
+    for (int i=startPoint; i < endPoint; i++) {
+    leds.setPixel(i, color);
+    leds.show();
+  }
+}
+
 void receiveEvent(int data)
 {
-  int microsec = 2000000 / leds.numPixels();
-  
-    if(data == 72) 
-      {
-        digitalWrite(13,HIGH);
-        colorWipe(BLUE, microsec);
-      }
+    if(data == 0) 
+    {
+      colorWipe(BLUE, microsec);
+    }
+    else if(data == 72)
+    {
+      //colorWipe(BLUE, microsec);
+      drawSection(0, 9, GREEN);
+    }
     else if(data == 74)
     {
-      digitalWrite(13,HIGH);
-      colorWipe(YELLOW, microsec);
+      //colorWipe(BLUE, microsec);
+      drawSection(10, 19, GREEN);
     }
     else if(data == 76)
     {
-      digitalWrite(13,HIGH);
-      colorWipe(PURPLE, microsec);
-      colorWipe(GOLD, microsec);
+      //colorWipe(BLUE, microsec);
+      drawSection(20, 29, GREEN);
     }
     else if(data == 78)
     {
-      digitalWrite(13,HIGH);
-      colorWipe(RED, microsec);
+      colorWipe(BLUE, microsec);
+      drawSection(30, 39, GREEN);
+    }
+    else if(data == 80)
+    {
+      colorWipe(BLUE, microsec);
+      drawSection(40, 49, GREEN);
     }
     else
     {
-      digitalWrite(13,LOW);
     }
 }
