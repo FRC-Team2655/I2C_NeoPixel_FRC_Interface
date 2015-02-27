@@ -51,12 +51,6 @@ const int config = WS2811_GRB | WS2811_800kHz;
 OctoWS2811 leds(ledsPerStrip, displayMemory, drawingMemory, config);
 
 int PlatypiColors[180];
-int Level0[180];
-int Level1[180];
-int Level2[180];
-int Level3[180];
-int Level4[180];
-int Level5[180];
 int PulseRed[180];
 int PulseBlue[180];
 int j = 0;
@@ -70,7 +64,7 @@ void setup() {
   // Create Array for Loiter Pattern
   for (int i=0; i<45; i++) {
     j++;
-    int hue = 300;
+    int hue = 280;
     int saturation = 100;
     int lightness = j + 5;
     // Pre-compute "45 degrees" of the Platypi Colors
@@ -79,7 +73,7 @@ void setup() {
   j = 0;
   for (int i=45; i<90; i++) {
     j++;
-    int hue = 300;
+    int hue = 280;
     int saturation = 100;
     int lightness = 50 - j;
     // Pre-compute "45 degrees" of the Platypi Colors
@@ -88,7 +82,7 @@ void setup() {
   j = 0;
   for (int i=90; i<135; i++) {
     j++;
-    int hue = 60;
+    int hue = 50;
     int saturation = 100;
     int lightness = j + 5;
     // Pre-compute "45 degrees" of the Platypi Colors
@@ -97,48 +91,99 @@ void setup() {
   j = 0;
   for (int i=135; i<180; i++) {
     j++;
-    int hue = 60;
+    int hue = 50;
     int saturation = 100;
     int lightness = 50 - j;
     // Pre-compute "45 degrees" of the Platypi Colors
     PlatypiColors[i] = makeColor(hue, saturation, lightness);
   }
   
-  // Create Array for Pulse Red Pattern
-  for (int i=0; i<90; i++) {
+  j = 0;
+  // Create Array for Loiter Pattern
+  for (int i=0; i<45; i++) {
     j++;
     int hue = 360;
     int saturation = 100;
-    int lightness = j/3;
-    // Pre-compute "90 degrees" of the Pulse Red Pattern
+    int lightness = j + 5;
+    // Pre-compute "45 degrees" of the Platypi Colors
     PulseRed[i] = makeColor(hue, saturation, lightness);
   }
   j = 0;
-  for (int i=90; i<180; i++) {
+  for (int i=45; i<90; i++) {
     j++;
-    int hue = 60;
+    int hue = 360;
     int saturation = 100;
-    int lightness = 50 - j/3;
-    // Pre-compute "90 degrees" of the Pulse Red Pattern
+    int lightness = 50 - j;
+    // Pre-compute "45 degrees" of the Platypi Colors
     PulseRed[i] = makeColor(hue, saturation, lightness);
+  }
+  j = 0;
+  for (int i=90; i<135; i++) {
+    j++;
+    int hue = 50;
+    int saturation = 100;
+    int lightness = j + 5;
+    // Pre-compute "45 degrees" of the Platypi Colors
+    PulseRed[i] = makeColor(hue, saturation, lightness);
+  }
+  j = 0;
+  for (int i=135; i<180; i++) {
+    j++;
+    int hue = 50;
+    int saturation = 100;
+    int lightness = 50 - j;
+    // Pre-compute "45 degrees" of the Platypi Colors
+    PulseRed[i] = makeColor(hue, saturation, lightness);
+  }
+  
+  j = 0;
+  // Create Array for Loiter Pattern
+  for (int i=0; i<45; i++) {
+    j++;
+    int hue = 240;
+    int saturation = 100;
+    int lightness = j + 5;
+    // Pre-compute "45 degrees" of the Platypi Colors
+    PulseBlue[i] = makeColor(hue, saturation, lightness);
+  }
+  j = 0;
+  for (int i=45; i<90; i++) {
+    j++;
+    int hue = 240;
+    int saturation = 100;
+    int lightness = 50 - j;
+    // Pre-compute "45 degrees" of the Platypi Colors
+    PulseBlue[i] = makeColor(hue, saturation, lightness);
+  }
+  j = 0;
+  for (int i=90; i<135; i++) {
+    j++;
+    int hue = 50;
+    int saturation = 100;
+    int lightness = j + 5;
+    // Pre-compute "45 degrees" of the Platypi Colors
+    PulseBlue[i] = makeColor(hue, saturation, lightness);
+  }
+  j = 0;
+  for (int i=135; i<180; i++) {
+    j++;
+    int hue = 50;
+    int saturation = 100;
+    int lightness = 50 - j;
+    // Pre-compute "45 degrees" of the Platypi Colors
+    PulseBlue[i] = makeColor(hue, saturation, lightness);
   }
   
   digitalWrite(1, LOW);
   leds.begin();
 }
 
-int currentLightValue = 0;
-int mode = 0;
+int i2clight = 72;
 int* LEDData;
 
-void loop() {
-  if (Wire.available())
-  {
-    currentLightValue = Wire.read();
-  }
-  receiveEvent(currentLightValue);
-  LEDData = setLEDData(mode);
-  rainbow(20, 2500, LEDData);
+void loop() 
+{
+  rainbow(20, 1800, LEDData);
 }
 
 
@@ -174,64 +219,20 @@ void rainbow(int phaseShift, int cycleTime, int data[180])
 
 void receiveEvent(int data)
 {
-  switch(data){
-    case 72:
-      mode = 72;
-      break;
-    case 74:
-      mode = 74;
-      break;
-    case 76:
-      mode = 76;
-      break;
-    case 78:
-      mode = 78;
-      break;
-    case 80:
-      mode = 80;
-      break;
-    case 82:
-      mode = 82;
-      break;
-    case 84:
-      mode = 84;
-      break;
-    case 86:
-      mode = 86;
-      break;
-    case 88:
-      mode = 88;
-      break;
-    default:
-      mode = 0;
-      break;
-  }
-}
-
-// This function handles receiving data from the robot and setting
-//  the appropriate color pattern.
-int* setLEDData(int data)
-{
-  switch(data){
-    case 72:
-      return PlatypiColors;
-    case 74:
-      return PulseRed;
-    case 76:
-      return PulseBlue;
-    case 78:
-      return Level0;
-    case 80:
-      return Level1;
-    case 82:
-      return Level2;
-    case 84:
-      return Level3;
-    case 86:
-      return Level4;
-    case 88:
-      return Level5;
-    default:
-      return PlatypiColors;
+  while (Wire.available())
+  {
+    i2clight = Wire.read();
+    if (i2clight == 72)
+    {
+      LEDData = PlatypiColors;
+    }
+    else if (i2clight == 74)
+    {
+      LEDData = PulseRed;
+    }
+    else if (i2clight == 76)
+    {
+      LEDData = PulseBlue;
+    }
   }
 }

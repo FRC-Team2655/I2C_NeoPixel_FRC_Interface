@@ -41,11 +41,10 @@
 #include <OctoWS2811.h>
 #include <Wire.h>
 
-const int ledsPerStrip = 120;
+const int ledsPerStrip = 100;
 
 DMAMEM int displayMemory[ledsPerStrip*6];
 int drawingMemory[ledsPerStrip*6];
-int data = 76;
 
 const int config = WS2811_GRB | WS2811_800kHz;
 
@@ -62,66 +61,151 @@ void setup() {
 #define GREEN  0x00FF00
 #define BLUE   0x0000FF
 
-//bool connected = true;
-int currentLightValue = 0;
-int microsec = 2 / leds.numPixels();
+int microsec = 10000 / leds.numPixels();
 int lastLevel = 0;
+int i2cdata = 71;
 void loop() 
 {
-  if (Wire.available()){
-    currentLightValue = Wire.read();
-  }
-  receiveEvent(currentLightValue);
+  writeLevelData(i2cdata);
 }
 
 void colorWipe(int color, int wait)
 {
-  for (int i=0; i < leds.numPixels(); i++) {
+  for (int i=0; i < leds.numPixels(); i++) 
+  {
     leds.setPixel(i, color);
     leds.show();
     delayMicroseconds(wait);
   }
 }
 
-void drawSection(int startPoint, int endPoint, int color){
-    for (int i=startPoint; i < endPoint; i++) {
+void drawSection(int startPoint, int endPoint, int color, int wait){
+  for (int i = startPoint; i < endPoint; i++) 
+  {
     leds.setPixel(i, color);
     leds.show();
+    delayMicroseconds(wait);
+  }
+  for (int j = (100 - startPoint); j > (100 - endPoint); j--) 
+  {
+    leds.setPixel(j, color);
+    leds.show();
+    delayMicroseconds(wait);
   }
 }
 
-void receiveEvent(int data)
+void wipeLast()
 {
-    if(data == 0) 
-    {
-      colorWipe(BLUE, microsec);
-    }
-    else if(data == 72)
-    {
-      //colorWipe(BLUE, microsec);
-      drawSection(0, 9, GREEN);
-    }
-    else if(data == 74)
-    {
-      //colorWipe(BLUE, microsec);
-      drawSection(10, 19, GREEN);
-    }
-    else if(data == 76)
-    {
-      //colorWipe(BLUE, microsec);
-      drawSection(20, 29, GREEN);
-    }
-    else if(data == 78)
-    {
-      colorWipe(BLUE, microsec);
-      drawSection(30, 39, GREEN);
-    }
-    else if(data == 80)
-    {
-      colorWipe(BLUE, microsec);
-      drawSection(40, 49, GREEN);
-    }
-    else
-    {
-    }
+  switch(lastLevel)
+  {
+  case 70:
+    break;
+  case 71:
+    drawSection(0, 9, BLUE, microsec);
+    break;
+  case 72:
+    drawSection(10, 19, BLUE, microsec);
+    break;
+  case 73:
+    drawSection(20, 29, BLUE, microsec);
+    break;
+  case 74:
+    drawSection(30, 39, BLUE, microsec);
+    break;
+  case 75:
+    drawSection(40, 49, BLUE, microsec);
+    break;
+  case 80:
+    break;
+  case 81:
+    drawSection(0, 9, RED, microsec);
+    break;
+  case 82:
+    drawSection(10, 19, RED, microsec);
+    break;
+  case 83:
+    drawSection(20, 29, RED, microsec);
+    break;
+  case 84:
+    drawSection(30, 39, RED, microsec);
+    break;
+  case 85:
+    drawSection(40, 49, RED, microsec);
+    break;
+  default:
+    break;
+  }
 }
+
+void receiveEvent(int howMany)
+{
+  i2cdata = Wire.read();
+}
+
+void writeLevelData(int data)
+{
+  switch(data)
+  {
+    case 70:
+      colorWipe(BLUE, microsec);
+      lastLevel = 70;
+      break;
+    case 71:
+      wipeLast();
+      drawSection(0, 9, RED, microsec);
+      lastLevel = 71;
+      break;
+    case 72:
+      wipeLast();
+      drawSection(10, 19, RED, microsec);
+      lastLevel = 72;
+      break;
+    case 73:
+      wipeLast();
+      drawSection(20, 29, RED, microsec);
+      lastLevel = 73;
+      break;
+    case 74:
+      wipeLast();
+      drawSection(30, 39, RED, microsec);
+      lastLevel = 74;
+      break;
+    case 75:
+      wipeLast();
+      drawSection(40, 49, RED, microsec);
+      lastLevel = 75;
+      break;
+    case 80:
+      colorWipe(RED, microsec);
+      lastLevel = 80;
+      break;
+    case 81:
+      wipeLast();
+      drawSection(0, 9, BLUE, microsec);
+      lastLevel = 81;
+      break;
+    case 82:
+      wipeLast();
+      drawSection(10, 19, BLUE, microsec);
+      lastLevel = 82;
+      break;
+    case 83:
+      wipeLast();
+      drawSection(20, 29, BLUE, microsec);
+      lastLevel = 83;
+      break;
+    case 84:
+      wipeLast();
+      drawSection(30, 39, BLUE, microsec);
+      lastLevel = 84;
+      break;
+    case 85:
+      wipeLast();
+      drawSection(40, 49, BLUE, microsec);
+      lastLevel = 85;
+      break;
+    default:
+      break;
+  }
+}
+
